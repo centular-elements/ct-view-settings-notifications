@@ -1,5 +1,21 @@
 <link rel="import" href="../polymer/polymer.html">
 
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../app-route/app-route.html">
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-progress/paper-progress.html">
+
+<link rel="import" href="../paper-input/paper-input-behavior.html">
+
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../ct-view-settings-notifications-settings/ct-view-settings-notifications-settings.html">
+<link rel="import" href="../ct-view-settings-notifications-templates/ct-view-settings-notifications-templates.html">
+
+
+<link rel="import" href="../ct-core-utils/ct-app-styles.html">
+<link rel="import" href="../ct-core-utils/ct-api-consumer-behaviour.html">
+
 <!--
 `ct-view-settings-notifications`
 Element to view notification settings and templates in settings on the Centular platform.
@@ -14,7 +30,25 @@ Element to view notification settings and templates in settings on the Centular 
         display: block;
       }
     </style>
-    <h2>Hello [[prop1]]!</h2>
+    <app-route id="appRoute" route="{{ _route }}" pattern="/:activeTab" data="{{ _routeData }}"></app-route>
+    <paper-tabs selected='{{_routeData.activeTab}}' attr-for-selected='key'>
+      <paper-tab key="notifications-settings" >Settings</paper-tab>
+      <paper-tab key="notifications-templates" >Templates</paper-tab>
+
+    </paper-tabs>
+
+    <iron-pages selected='{{_routeData.activeTab}}' attr-for-selected='key'>
+      <div key="notifications-settings">
+        <paper-material>
+          <ct-view-settings-notifications-settings></ct-view-settings-notifications>
+        </paper-material>
+      </div>
+      <div key="notifications-templates">
+        <paper-material>
+          <ct-view-settings-notifications-templates></ct-view-settings-notifications>
+        </paper-material>
+      </div>
+    </iron-pages>
   </template>
 
   <script>
@@ -23,10 +57,34 @@ Element to view notification settings and templates in settings on the Centular 
       is: 'ct-view-settings-notifications',
 
       properties: {
-        prop1: {
-          type: String,
-          value: 'ct-view-settings-notifications',
+        refreshing: {
+            type: Boolean,
+            notify: true
         },
+        selected: Number,
+        route: {
+            type: Object,
+            notify: true
+        },
+      },
+
+      observers: [
+          '_checkRoute(route)',
+          '_updateRoute(_routeData)'
+      ],
+
+      _checkRoute: function () {
+          if (this.route.prefix === '/notifications') {
+              var tmpRoute = this.route;
+              if (this.route.path === '') {
+                  tmpRoute.path = '/notifications-settings';
+              }
+              this._route = tmpRoute;
+          }
+      },
+
+      _updateRoute: function() {
+          this.set('route.path', this._route.path);
       },
 
     });
