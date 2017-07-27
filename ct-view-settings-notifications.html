@@ -27,14 +27,40 @@ Element to view notification settings and templates in settings on the Centular 
   <template>
     <style>
       :host {
-        display: block;
+        --paper-tab-ink:#0077aa;
+        --paper-tabs-selection-bar-color:transparent;
+        }
+
+        paper-tab {
+          background: #33a5e0;
+          color: #fff;
+          font-weight: bold;
+          margin: 0 1px;
+
+        }
+
+        paper-tab:hover {
+          background: #5fbdee;
+        }
+
+        paper-tab.iron-selected {
+          background:#fff;
+          color: #0077aa;
+          border-top:1px solid #ccc;
+          border-right:1px solid #ccc;
+          border-left:1px solid #ccc;
+
+        }
+      paper-material {
+        background: #fff;
+        padding: 15px;
       }
     </style>
     <app-route id="appRoute" route="{{ _route }}" pattern="/:activeTab" data="{{ _routeData }}"></app-route>
+
     <paper-tabs selected='{{_routeData.activeTab}}' attr-for-selected='key'>
       <paper-tab key="notifications-settings" >Settings</paper-tab>
       <paper-tab key="notifications-templates" >Templates</paper-tab>
-
     </paper-tabs>
 
     <iron-pages selected='{{_routeData.activeTab}}' attr-for-selected='key'>
@@ -74,7 +100,7 @@ Element to view notification settings and templates in settings on the Centular 
       ],
 
       _checkRoute: function () {
-          if (this.route.prefix === '/notifications') {
+          if (this.route.prefix === '/global-settings/notifications') {
               var tmpRoute = this.route;
               if (this.route.path === '') {
                   tmpRoute.path = '/notifications-settings';
@@ -84,7 +110,11 @@ Element to view notification settings and templates in settings on the Centular 
       },
 
       _updateRoute: function() {
+        //_routeData get initialised as an empty object while we expect it to be undefined
+        if (this._route) {
           this.set('route.path', this._route.path);
+        }
+
       },
 
     });
