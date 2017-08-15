@@ -14,6 +14,7 @@
 
 
 <link rel="import" href="../ct-core-utils/ct-app-styles.html">
+<link rel="import" href="../ct-message-template-api/ct-message-template-api.html">
 <link rel="import" href="../ct-core-utils/ct-api-consumer-behaviour.html">
 
 <!--
@@ -36,7 +37,6 @@ Element to view notification settings and templates in settings on the Centular 
           color: #fff;
           font-weight: bold;
           margin: 0 1px;
-
         }
 
         paper-tab:hover {
@@ -56,6 +56,7 @@ Element to view notification settings and templates in settings on the Centular 
         padding: 15px;
       }
     </style>
+    <ct-message-template-api id="messageTemplateApi"></ct-message-template-api>
     <app-route id="appRoute" route="{{ _route }}" pattern="/:activeTab" data="{{ _routeData }}"></app-route>
 
     <paper-tabs selected='{{_routeData.activeTab}}' attr-for-selected='key'>
@@ -71,7 +72,8 @@ Element to view notification settings and templates in settings on the Centular 
       </div>
       <div key="notifications-templates">
         <paper-material>
-          <ct-view-settings-notifications-templates></ct-view-settings-notifications>
+          <ct-message-template-api></ct-message-template-api>
+          <ct-view-settings-notifications-templates template-list={{_templateList}}></ct-view-settings-notifications>
         </paper-material>
       </div>
     </iron-pages>
@@ -92,7 +94,21 @@ Element to view notification settings and templates in settings on the Centular 
             type: Object,
             notify: true
         },
+
       },
+
+      ready : function(){
+          this.init();
+      },
+
+      refresh: function() {
+          this.init();
+      },
+
+      init : function(){
+          this.refreshing = true;
+      },
+
 
       observers: [
           '_checkRoute(route)',
@@ -108,13 +124,11 @@ Element to view notification settings and templates in settings on the Centular 
               this._route = tmpRoute;
           }
       },
-
       _updateRoute: function() {
         //_routeData get initialised as an empty object while we expect it to be undefined
         if (this._route) {
           this.set('route.path', this._route.path);
         }
-
       },
 
     });
