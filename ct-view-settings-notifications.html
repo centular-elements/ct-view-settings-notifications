@@ -1,5 +1,22 @@
 <link rel="import" href="../polymer/polymer.html">
 
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../app-route/app-route.html">
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-progress/paper-progress.html">
+
+<link rel="import" href="../paper-input/paper-input-behavior.html">
+
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../ct-view-settings-notifications-settings/ct-view-settings-notifications-settings.html">
+<link rel="import" href="../ct-view-settings-notifications-templates/ct-view-settings-notifications-templates.html">
+
+
+<link rel="import" href="../ct-core-utils/ct-app-styles.html">
+<link rel="import" href="../ct-message-template-api/ct-message-template-api.html">
+<link rel="import" href="../ct-core-utils/ct-api-consumer-behaviour.html">
+
 <!--
 `ct-view-settings-notifications`
 Element to view notification settings and templates in settings on the Centular platform.
@@ -11,10 +28,55 @@ Element to view notification settings and templates in settings on the Centular 
   <template>
     <style>
       :host {
-        display: block;
+        --paper-tab-ink:#0077aa;
+        --paper-tabs-selection-bar-color:transparent;
+        }
+
+        paper-tab {
+          background: #33a5e0;
+          color: #fff;
+          font-weight: bold;
+          margin: 0 1px;
+        }
+
+        paper-tab:hover {
+          background: #5fbdee;
+        }
+
+        paper-tab.iron-selected {
+          background:#fff;
+          color: #0077aa;
+          border-top:1px solid #ccc;
+          border-right:1px solid #ccc;
+          border-left:1px solid #ccc;
+
+        }
+      paper-material {
+        background: #fff;
+        padding: 15px;
       }
     </style>
-    <h2>Hello [[prop1]]!</h2>
+    <ct-message-template-api id="messageTemplateApi"></ct-message-template-api>
+    <app-route id="appRoute" route="{{ _route }}" pattern="/:activeTab" data="{{ _routeData }}"></app-route>
+
+    <paper-tabs selected='{{_routeData.activeTab}}' attr-for-selected='key'>
+      <paper-tab key="notifications-settings" >Settings</paper-tab>
+      <paper-tab key="notifications-templates" >Templates</paper-tab>
+    </paper-tabs>
+
+    <iron-pages selected='{{_routeData.activeTab}}' attr-for-selected='key'>
+      <div key="notifications-settings">
+        <paper-material>
+          <ct-view-settings-notifications-settings></ct-view-settings-notifications>
+        </paper-material>
+      </div>
+      <div key="notifications-templates">
+        <paper-material>
+          <ct-message-template-api></ct-message-template-api>
+          <ct-view-settings-notifications-templates template-list={{_templateList}}></ct-view-settings-notifications>
+        </paper-material>
+      </div>
+    </iron-pages>
   </template>
 
   <script>
@@ -23,10 +85,50 @@ Element to view notification settings and templates in settings on the Centular 
       is: 'ct-view-settings-notifications',
 
       properties: {
-        prop1: {
-          type: String,
-          value: 'ct-view-settings-notifications',
+        refreshing: {
+            type: Boolean,
+            notify: true
         },
+        selected: Number,
+        route: {
+            type: Object,
+            notify: true
+        },
+
+      },
+
+      ready : function(){
+          this.init();
+      },
+
+      refresh: function() {
+          this.init();
+      },
+
+      init : function(){
+          this.refreshing = true;
+      },
+
+
+      observers: [
+          '_checkRoute(route)',
+          '_updateRoute(_routeData)'
+      ],
+
+      _checkRoute: function () {
+          if (this.route.prefix === '/global-settings/notifications') {
+              var tmpRoute = this.route;
+              if (this.route.path === '') {
+                  tmpRoute.path = '/notifications-settings';
+              }
+              this._route = tmpRoute;
+          }
+      },
+      _updateRoute: function() {
+        //_routeData get initialised as an empty object while we expect it to be undefined
+        if (this._route) {
+          this.set('route.path', this._route.path);
+        }
       },
 
     });
